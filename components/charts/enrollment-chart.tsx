@@ -1,9 +1,12 @@
 'use client';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { enrollmentData } from '@/lib/data';
 
-export function EnrollmentChart() {
+interface EnrollmentChartProps {
+  data: { month: string; students: number }[];
+}
+
+export function EnrollmentChart({ data }: EnrollmentChartProps) {
   return (
     <div className="bg-card rounded-lg border border-border p-6">
       <div className="mb-6">
@@ -11,11 +14,11 @@ export function EnrollmentChart() {
         <p className="text-sm text-muted-foreground">New students per month</p>
       </div>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={enrollmentData}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ede5d9" />
           <XAxis dataKey="month" stroke="#5d5d5d" />
           <YAxis stroke="#5d5d5d" />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: '#ffffff',
               border: '1px solid #ede5d9',
@@ -23,10 +26,10 @@ export function EnrollmentChart() {
             }}
             formatter={(value) => `${value} students`}
           />
-          <Line 
-            type="monotone" 
-            dataKey="students" 
-            stroke="#c9a961" 
+          <Line
+            type="monotone"
+            dataKey="students"
+            stroke="#c9a961"
             strokeWidth={2}
             dot={{ fill: '#c9a961', r: 5 }}
             activeDot={{ r: 7 }}

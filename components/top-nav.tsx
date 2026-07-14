@@ -1,11 +1,29 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase-browser';
 
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
+}
+
 export function TopNav() {
   const router = useRouter();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      setDisplayName((data.user.user_metadata?.full_name as string) || data.user.email || 'Admin');
+      setEmail(data.user.email ?? '');
+    });
+  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -28,11 +46,11 @@ export function TopNav() {
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-6 border-l border-border">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-foreground">Admin User</p>
-            <p className="text-xs text-muted-foreground">Administrator</p>
+            <p className="text-sm font-medium text-foreground">{displayName || 'Admin'}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-            AU
+            {initials(displayName || 'Admin')}
           </div>
           <button
             onClick={handleLogout}

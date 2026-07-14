@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { CheckCircle } from 'lucide-react'
 import { supabase } from "@/lib/supabase"
+import { getCoursePrice } from "@/components/prices/get-course-price"
 
 export function RegistrationForm() {
   const [toast, setToast] = useState(false)
@@ -48,6 +49,10 @@ export function RegistrationForm() {
 
     setLoading(true)
 
+    // Snapshot the course's current price at signup time — if the price
+    // changes later, this student keeps the fee they registered under.
+    const totalFee = await getCoursePrice(formData.course)
+
     const { error } = await supabase.from("students").insert([
       {
         full_name: formData.fullName,
@@ -67,6 +72,7 @@ export function RegistrationForm() {
         notes: formData.notes,
 
         status: "active",
+        total_fee: totalFee,
       },
     ])
 

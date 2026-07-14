@@ -1,38 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Zap } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { SalaryTable } from '@/components/salary/salary-table';
 import { SalaryStats } from '@/components/salary/salary-stats';
-import { salaries, employees } from '@/lib/data';
 
 export default function SalaryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  const filteredSalaries = salaries.filter(salary => {
-    const matchesSearch = salary.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || salary.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <main className="md:ml-64 pt-20 pb-10 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Salary Management</h1>
-            <p className="text-muted-foreground">Process and track employee salaries</p>
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors w-full sm:w-auto justify-center">
-            <Zap size={20} />
-            Process Salaries
-          </button>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Salary Management</h1>
+          <p className="text-muted-foreground">Track and pay employee salaries for the current month</p>
         </div>
 
         {/* Stats */}
-        <SalaryStats />
+        <SalaryStats refreshKey={refreshKey} />
 
         {/* Filters and Search */}
         <div className="bg-card rounded-lg border border-border p-4 mb-6 flex flex-col sm:flex-row gap-3">
@@ -58,7 +46,12 @@ export default function SalaryPage() {
         </div>
 
         {/* Table */}
-        <SalaryTable salaries={filteredSalaries} />
+        <SalaryTable
+          searchQuery={searchQuery}
+          filterStatus={filterStatus}
+          refreshKey={refreshKey}
+          onChange={() => setRefreshKey((key) => key + 1)}
+        />
       </div>
     </main>
   );

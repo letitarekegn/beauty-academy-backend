@@ -1,22 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { PaymentTable } from '@/components/payments/payment-table';
 import { PaymentStats } from '@/components/payments/payment-stats';
-import { payments, dashboardStats } from '@/lib/data';
 
 export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = 
-      payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.course.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || payment.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <main className="md:ml-64 pt-20 pb-10 px-4 md:px-8">
@@ -28,7 +20,7 @@ export default function PaymentsPage() {
         </div>
 
         {/* Payment Stats */}
-        <PaymentStats totalPending={dashboardStats.pendingPayments} />
+        <PaymentStats refreshKey={refreshKey} />
 
         {/* Filters and Search */}
         <div className="bg-card rounded-lg border border-border p-4 mb-6 flex flex-col sm:flex-row gap-3">
@@ -48,14 +40,19 @@ export default function PaymentsPage() {
             className="px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="all">All Status</option>
-            <option value="paid">Paid</option>
+            <option value="fully_paid">Fully Paid</option>
+            <option value="half_paid">Half Paid</option>
             <option value="pending">Pending</option>
-            <option value="overdue">Overdue</option>
           </select>
         </div>
 
         {/* Table */}
-        <PaymentTable payments={filteredPayments} />
+        <PaymentTable
+          searchQuery={searchQuery}
+          filterStatus={filterStatus}
+          refreshKey={refreshKey}
+          onChange={() => setRefreshKey((key) => key + 1)}
+        />
       </div>
     </main>
   );

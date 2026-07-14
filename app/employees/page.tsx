@@ -4,22 +4,21 @@ import { useState } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { EmployeeTable } from '@/components/employees/employee-table';
 import { EmployeeModal } from '@/components/employees/employee-modal';
-import { employees } from '@/lib/data';
+import { SuccessToast } from '@/components/success-toast';
+import { DEPARTMENTS } from '@/components/employees/types';
 
 export default function EmployeesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('all');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const departments = ['Training', 'Administration', 'Finance'];
-
-  const filteredEmployees = employees.filter(emp => {
-    const matchesSearch = 
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.role.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterDepartment === 'all' || emp.department === filterDepartment;
-    return matchesSearch && matchesFilter;
-  });
+  const handleAddSuccess = () => {
+    setRefreshKey((key) => key + 1);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 4000);
+  };
 
   return (
     <main className="md:ml-64 pt-20 pb-10 px-4 md:px-8">
@@ -57,17 +56,24 @@ export default function EmployeesPage() {
             className="px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="all">All Departments</option>
-            {departments.map(dept => (
+            {DEPARTMENTS.map(dept => (
               <option key={dept} value={dept}>{dept}</option>
             ))}
           </select>
         </div>
 
         {/* Table */}
-        <EmployeeTable employees={filteredEmployees} />
+        <EmployeeTable searchQuery={searchQuery} filterDepartment={filterDepartment} refreshKey={refreshKey} />
 
         {/* Modal */}
-        {isModalOpen && <EmployeeModal onClose={() => setIsModalOpen(false)} />}
+        {isModalOpen && (
+          <EmployeeModal
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={handleAddSuccess}
+          />
+        )}
+
+        {showSuccess && <SuccessToast message="Employee added successfully!" />}
       </div>
     </main>
   );

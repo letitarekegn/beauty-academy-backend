@@ -3,43 +3,41 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { COURSES, type Student } from './types';
+import { getCoursePrice } from '@/components/prices/get-course-price';
 
 interface StudentModalProps {
+  student?: Student;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-const courses = [
-  { value: 'makeup', label: 'Makeup' },
-  { value: 'hair', label: 'Hair Styling' },
-  { value: 'nails', label: 'Nail Art' },
-  { value: 'hair-makeup', label: 'Hair & Makeup' },
-  { value: 'hair-nails', label: 'Hair & Nails' },
-  { value: 'makeup-nails', label: 'Makeup & Nails' },
-  { value: 'full', label: 'Full Package (All Three)' },
-];
-
-export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
+export function StudentModal({ student, onClose, onSuccess }: StudentModalProps) {
+  const isEditing = Boolean(student);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    gender: '',
-    age: '',
-    address: '',
-    course: 'makeup',
-    schedule: 'morning',
-    experience: 'none',
+    fullName: student?.full_name ?? '',
+    email: student?.email ?? '',
+    phone: student?.phone ?? '',
+    gender: student?.gender ?? '',
+    age: student?.age?.toString() ?? '',
+    address: student?.address ?? '',
+    course: student?.courses?.[0] ?? 'makeup',
+    schedule: student?.schedule ?? 'morning',
+    experience: student?.experience ?? 'none',
+    graduated: student?.graduation_status === 'graduated',
   });
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,26 +45,52 @@ export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.from('students').insert([
-      {
-        full_name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        gender: formData.gender,
-        age: formData.age ? Number(formData.age) : null,
-        address: formData.address,
-        courses: [formData.course],
-        schedule: formData.schedule,
-        experience: formData.experience,
-        status: 'active',
-      },
-    ]);
+    const payload: Record<string, unknown> = {
+      full_name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      gender: formData.gender,
+      age: formData.age ? Number(formData.age) : null,
+      address: formData.address,
+      courses: [formData.course],
+      schedule: formData.schedule,
+      experience: formData.experience,
+      graduation_status: formData.graduated ? 'graduated' : 'not_graduated',
+      status: formData.graduated ? 'graduated' : 'active',
+    };
+
+    // Stamp graduated_at when transitioning to graduated, or backfill it for
+    // a student that's already graduated but is somehow missing the date
+    // (e.g. graduated before this field existed). An unrelated edit while
+    // already graduated with a date set must not bump it, and un-graduating
+    // clears it.
+    const wasGraduated = student?.graduation_status === 'graduated';
+    if (formData.graduated && (!wasGraduated || !student?.graduated_at)) {
+      payload.graduated_at = new Date().toISOString();
+    } else if (!formData.graduated && wasGraduated) {
+      payload.graduated_at = null;
+    }
+
+    // Snapshot the course's current price only for new students — editing
+    // an existing student must never change the fee they were charged.
+    if (!isEditing) {
+      payload.total_fee = await getCoursePrice(formData.course);
+    }
+
+    const { data, error } = isEditing
+      ? await supabase.from('students').update(payload).eq('id', student!.id).select()
+      : await supabase.from('students').insert([payload]).select();
 
     setLoading(false);
 
     if (error) {
       console.error(error);
       setError(error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      setError('No student was updated. This usually means a database permission (RLS policy) is blocking the change.');
       return;
     }
 
@@ -79,7 +103,9 @@ export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
       <div className="bg-card rounded-lg border border-border max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-bold text-foreground">Add New Student</h2>
+          <h2 className="text-lg font-bold text-foreground">
+            {isEditing ? 'Edit Student' : 'Add New Student'}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
@@ -172,7 +198,7 @@ export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {courses.map((course) => (
+              {COURSES.map((course) => (
                 <option key={course.value} value={course.value}>{course.label}</option>
               ))}
             </select>
@@ -224,6 +250,20 @@ export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
             />
           </div>
 
+          {/* Graduation toggle - only meaningful once a student already exists */}
+          {isEditing && (
+            <label className="flex items-center gap-2 rounded-lg border border-border px-3 py-2.5">
+              <input
+                type="checkbox"
+                name="graduated"
+                checked={formData.graduated}
+                onChange={handleInputChange}
+                className="size-4"
+              />
+              <span className="text-sm font-medium text-foreground">Mark as Graduated</span>
+            </label>
+          )}
+
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {/* Buttons */}
@@ -240,7 +280,7 @@ export function StudentModal({ onClose, onSuccess }: StudentModalProps) {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium disabled:opacity-50"
             >
-              {loading ? 'Adding...' : 'Add Student'}
+              {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Student'}
             </button>
           </div>
         </form>

@@ -3,14 +3,26 @@ import { StatCard } from '@/components/stat-card';
 import { RevenueChart } from '@/components/charts/revenue-chart';
 import { EnrollmentChart } from '@/components/charts/enrollment-chart';
 import { ActivityFeed } from '@/components/activity-feed';
-import { dashboardStats } from '@/lib/data';
+import { getDashboardData } from '@/lib/dashboard-data';
 
 export const metadata = {
   title: 'Dashboard - Arkani Beauty Academy',
   description: 'Admin dashboard for managing students, payments, and operations',
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const {
+    totalStudents,
+    totalEmployees,
+    totalRevenue,
+    graduatedThisMonth,
+    newStudentsThisMonth,
+    revenueThisMonth,
+    enrollmentTrend,
+    revenueTrend,
+    recentActivity,
+  } = await getDashboardData();
+
   return (
     <main className="md:ml-64 pt-20 pb-10 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
@@ -24,42 +36,40 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Students"
-            value={dashboardStats.totalStudents}
+            value={totalStudents}
             icon={Users}
-            trend="+12 this month"
+            trend={`+${newStudentsThisMonth} this month`}
             color="primary"
           />
           <StatCard
             title="Total Revenue"
-            value={`${(dashboardStats.totalRevenue / 1000).toFixed(0)}K SAR`}
+            value={`${(totalRevenue / 1000).toFixed(0)}K ETB`}
             icon={CreditCard}
-            trend="+8.2% from last month"
+            trend={`+${(revenueThisMonth / 1000).toFixed(0)}K this month`}
             color="accent"
           />
           <StatCard
             title="Total Employees"
-            value={dashboardStats.totalEmployees}
+            value={totalEmployees}
             icon={BarChart3}
-            trend="3 pending payments"
             color="secondary"
           />
           <StatCard
             title="Graduated This Month"
-            value={dashboardStats.graduatedThisMonth}
+            value={graduatedThisMonth}
             icon={GraduationCap}
-            trend="+5 from last month"
             color="primary"
           />
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RevenueChart />
-          <EnrollmentChart />
+          <RevenueChart data={revenueTrend} />
+          <EnrollmentChart data={enrollmentTrend} />
         </div>
 
         {/* Activity Feed */}
-        <ActivityFeed />
+        <ActivityFeed activities={recentActivity} />
       </div>
     </main>
   );

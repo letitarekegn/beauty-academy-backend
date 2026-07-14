@@ -84,8 +84,8 @@ export const courseDistribution = [
 // Activity Timeline
 export const activityTimeline = [
   { id: 1, action: 'New student enrolled', actor: 'Aisha Mohammed', timestamp: '2025-02-01 14:30', icon: 'user-plus' },
-  { id: 2, action: 'Payment received', actor: 'Fatima Al-Dosari', amount: '15,000 SAR', timestamp: '2025-02-01 12:15', icon: 'check-circle' },
+  { id: 2, action: 'Payment received', actor: 'Fatima Al-Dosari', amount: '15,000 ETB', timestamp: '2025-02-01 12:15', icon: 'check-circle' },
   { id: 3, action: 'Certificate issued', actor: 'Noor Al-Qahtani', timestamp: '2025-01-31 10:00', icon: 'award' },
-  { id: 4, action: 'Salary processed', actor: 'Ahmed Al-Qahtani', amount: '5,000 SAR', timestamp: '2025-02-01 08:00', icon: 'credit-card' },
+  { id: 4, action: 'Salary processed', actor: 'Ahmed Al-Qahtani', amount: '5,000 ETB', timestamp: '2025-02-01 08:00', icon: 'credit-card' },
   { id: 5, action: 'New employee added', actor: 'Rayan Al-Shehri', timestamp: '2025-01-30 16:45', icon: 'briefcase' },
 ];

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ChevronDown, Menu, X, BarChart3, Users, CreditCard, GraduationCap, Briefcase, Wallet, FileText, Settings } from 'lucide-react';
+import { ChevronDown, Menu, X, BarChart3, Users, CreditCard, GraduationCap, Briefcase, Wallet, FileText, Settings, Tag } from 'lucide-react';
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +11,7 @@ export function Sidebar() {
     { label: 'Dashboard', href: '/', icon: BarChart3 },
     { label: 'Students', href: '/students', icon: Users },
     { label: 'Payments', href: '/payments', icon: CreditCard },
+    { label: 'Pricing', href: '/prices', icon: Tag },
     { label: 'Graduation', href: '/graduation', icon: GraduationCap },
     { label: 'Employees', href: '/employees', icon: Briefcase },
     { label: 'Salary', href: '/salary', icon: Wallet },

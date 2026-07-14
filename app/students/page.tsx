@@ -5,12 +5,20 @@ import { Plus, Search, Filter, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StudentTable } from '@/components/students/student-table';
 import { StudentModal } from '@/components/students/student-modal';
+import { SuccessToast } from '@/components/success-toast';
 
 export default function StudentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleAddSuccess = () => {
+    setRefreshKey((key) => key + 1);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 4000);
+  };
 
   return (
     <main className="md:ml-64 pt-20 pb-10 px-4 md:px-8">
@@ -64,9 +72,11 @@ export default function StudentsPage() {
         {isModalOpen && (
           <StudentModal
             onClose={() => setIsModalOpen(false)}
-            onSuccess={() => setRefreshKey((key) => key + 1)}
+            onSuccess={handleAddSuccess}
           />
         )}
+
+        {showSuccess && <SuccessToast message="Student added successfully!" />}
       </div>
     </main>
   );
