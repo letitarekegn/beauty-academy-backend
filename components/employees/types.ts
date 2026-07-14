@@ -8,4 +8,4 @@ export type Employee = {
   created_at?: string
 }
 
-export const DEPARTMENTS = ['Training', 'Administration', 'Finance']
+export const DEPARTMENTS = ['Training', 'Administration', 'Management']
