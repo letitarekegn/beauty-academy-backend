@@ -56,13 +56,6 @@ export function Sidebar() {
             );
           })}
         </nav>
-
-        <div className="mt-12 pt-6 border-t border-sidebar-border">
-          <p className="text-xs text-muted-foreground mb-3">Support</p>
-          <button className="w-full text-left px-4 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition-colors">
-            Help & Documentation
-          </button>
-        </div>
       </aside>
 
       {/* Overlay for mobile */}
