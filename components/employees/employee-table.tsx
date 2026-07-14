@@ -8,6 +8,7 @@ import { EmployeeModal } from './employee-modal';
 import { type Employee } from './types';
 import { SuccessToast } from '@/components/success-toast';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { Pagination, PAGE_SIZE } from '@/components/pagination';
 
 interface EmployeeTableProps {
   searchQuery?: string;
@@ -22,6 +23,7 @@ export function EmployeeTable({ searchQuery = '', filterDepartment = 'all', refr
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showEditSuccess, setShowEditSuccess] = useState(false);
+  const [page, setPage] = useState(1);
 
   const fetchEmployees = useCallback(async () => {
     const { data, error } = await supabase
@@ -41,6 +43,10 @@ export function EmployeeTable({ searchQuery = '', filterDepartment = 'all', refr
   useEffect(() => {
     fetchEmployees();
   }, [fetchEmployees, refreshKey]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, filterDepartment]);
 
   const handleEditSuccess = () => {
     fetchEmployees();
@@ -74,6 +80,9 @@ export function EmployeeTable({ searchQuery = '', filterDepartment = 'all', refr
     return matchesSearch && matchesFilter;
   });
 
+  const totalPages = Math.max(1, Math.ceil(employees.length / PAGE_SIZE));
+  const pagedEmployees = employees.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   if (loading) {
     return <p className="p-4">Loading employees...</p>;
   }
@@ -93,7 +102,7 @@ export function EmployeeTable({ searchQuery = '', filterDepartment = 'all', refr
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {employees.map((emp) => (
+            {pagedEmployees.map((emp) => (
               <tr key={emp.id} className="hover:bg-muted/50 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-foreground">{emp.full_name}</td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">{emp.role}</td>
@@ -135,6 +144,8 @@ export function EmployeeTable({ searchQuery = '', filterDepartment = 'all', refr
           <p className="text-muted-foreground">No employees found</p>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {editingEmployee && (
         <EmployeeModal

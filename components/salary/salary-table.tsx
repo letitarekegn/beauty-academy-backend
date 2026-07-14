@@ -8,6 +8,7 @@ import { fetchEmployeeSalaries } from './fetch-employee-salaries';
 import { SalaryModal } from './salary-modal';
 import { toDateString, type EmployeeSalary } from './types';
 import { SuccessToast } from '@/components/success-toast';
+import { Pagination, PAGE_SIZE } from '@/components/pagination';
 
 function periodRangeLabel(periodStart: string) {
   const start = new Date(periodStart);
@@ -28,6 +29,7 @@ export function SalaryTable({ searchQuery = '', filterStatus = 'all', refreshKey
   const [editingRow, setEditingRow] = useState<EmployeeSalary | null>(null);
   const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState('');
+  const [page, setPage] = useState(1);
 
   const loadRows = useCallback(async () => {
     try {
@@ -42,6 +44,10 @@ export function SalaryTable({ searchQuery = '', filterStatus = 'all', refreshKey
   useEffect(() => {
     loadRows();
   }, [loadRows, refreshKey]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, filterStatus]);
 
   const flashSuccess = (message: string) => {
     setShowSuccess(message);
@@ -87,6 +93,9 @@ export function SalaryTable({ searchQuery = '', filterStatus = 'all', refreshKey
     return matchesSearch && matchesFilter;
   });
 
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const pagedRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   if (loading) {
     return <p className="p-4">Loading salaries...</p>;
   }
@@ -107,7 +116,7 @@ export function SalaryTable({ searchQuery = '', filterStatus = 'all', refreshKey
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {rows.map((row) => (
+            {pagedRows.map((row) => (
               <tr key={row.employeeId} className="hover:bg-muted/50 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-foreground">{row.fullName}</td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">{row.department}</td>
@@ -161,6 +170,8 @@ export function SalaryTable({ searchQuery = '', filterStatus = 'all', refreshKey
           <p className="text-muted-foreground">No employees found</p>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {editingRow && (
         <SalaryModal

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase-browser';
 
 function initials(name: string) {
@@ -37,12 +37,6 @@ export function TopNav() {
       <div className="flex-1" />
       
       <div className="flex items-center gap-6">
-        {/* Notifications */}
-        <button className="relative p-2 text-foreground hover:bg-muted rounded-lg transition-colors">
-          <Bell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-        </button>
-
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-6 border-l border-border">
           <div className="text-right hidden sm:block">

@@ -16,7 +16,7 @@ export function SalaryModal({ employeeSalary, onClose, onSuccess }: SalaryModalP
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    amount: employeeSalary.amount?.toString() ?? '',
+    amount: employeeSalary.amount ? employeeSalary.amount.toString() : '',
     status: employeeSalary.status,
     paymentDate: employeeSalary.paymentDate ?? '',
   });

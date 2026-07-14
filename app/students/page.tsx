@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Filter, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Plus, Search } from 'lucide-react';
 import { StudentTable } from '@/components/students/student-table';
 import { StudentModal } from '@/components/students/student-modal';
 import { SuccessToast } from '@/components/success-toast';
@@ -10,7 +9,7 @@ import { SuccessToast } from '@/components/success-toast';
 export default function StudentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('active');
   const [refreshKey, setRefreshKey] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -59,10 +58,6 @@ export default function StudentsPage() {
             <option value="active">Active</option>
             <option value="graduated">Graduated</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted transition-colors">
-            <Download size={18} />
-            Export
-          </button>
         </div>
 
         {/* Table */}

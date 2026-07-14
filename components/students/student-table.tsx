@@ -8,6 +8,7 @@ import { StudentModal } from "./student-modal"
 import { COURSES, type Student } from "./types"
 import { SuccessToast } from "@/components/success-toast"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { Pagination, PAGE_SIZE } from "@/components/pagination"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,7 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [showEditSuccess, setShowEditSuccess] = useState(false)
+  const [page, setPage] = useState(1)
 
   const fetchStudents = useCallback(async () => {
     const { data, error } = await supabase
@@ -50,6 +52,10 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
   useEffect(() => {
     fetchStudents()
   }, [fetchStudents, refreshKey])
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchQuery, filterStatus])
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
@@ -78,10 +84,14 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
     const query = searchQuery.toLowerCase()
     const matchesSearch =
       student.full_name.toLowerCase().includes(query) ||
-      student.email.toLowerCase().includes(query)
+      (student.email ?? "").toLowerCase().includes(query) ||
+      student.phone.toLowerCase().includes(query)
     const matchesFilter = filterStatus === "all" || student.status === filterStatus
     return matchesSearch && matchesFilter
   })
+
+  const totalPages = Math.max(1, Math.ceil(students.length / PAGE_SIZE))
+  const pagedStudents = students.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   if (loading) {
     return <p className="p-4">Loading students...</p>
@@ -105,7 +115,7 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
           </thead>
 
           <tbody className="divide-y divide-border">
-            {students.map((student) => {
+            {pagedStudents.map((student) => {
               const isGraduated = student.graduation_status === "graduated"
               return (
                 <tr key={student.id} className="hover:bg-muted/50 transition-colors">
@@ -115,7 +125,7 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
                   </td>
 
                   <td className="px-6 py-4 text-sm text-muted-foreground">
-                    {student.email}
+                    {student.email || "-"}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-muted-foreground">
@@ -174,6 +184,8 @@ export function StudentTable({ searchQuery = "", filterStatus = "all", refreshKe
           <p className="text-muted-foreground">No students found</p>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {editingStudent && (
         <StudentModal

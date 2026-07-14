@@ -17,8 +17,8 @@ export function PaymentModal({ student, onClose, onSuccess }: PaymentModalProps)
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    totalFee: student.total_fee?.toString() ?? '',
-    amountPaid: student.amount_paid?.toString() ?? '',
+    totalFee: student.total_fee ? student.total_fee.toString() : '',
+    amountPaid: student.amount_paid ? student.amount_paid.toString() : '',
   });
 
   const handleInputChange = (

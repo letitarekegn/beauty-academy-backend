@@ -7,6 +7,7 @@ import { COURSES, type Student } from '@/components/students/types';
 import { PaymentModal } from './payment-modal';
 import { SuccessToast } from '@/components/success-toast';
 import { PAYMENT_STATUS_LABELS, PAYMENT_STATUS_STYLES, paymentStatusOf } from './derive-status';
+import { Pagination, PAGE_SIZE } from '@/components/pagination';
 
 function courseLabel(value: string) {
   return COURSES.find((c) => c.value === value)?.label ?? value;
@@ -25,6 +26,7 @@ export function PaymentTable({ searchQuery = '', filterStatus = 'all', refreshKe
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState('');
+  const [page, setPage] = useState(1);
 
   const fetchStudents = useCallback(async () => {
     const { data, error } = await supabase
@@ -44,6 +46,10 @@ export function PaymentTable({ searchQuery = '', filterStatus = 'all', refreshKe
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents, refreshKey]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, filterStatus]);
 
   const flashSuccess = (message: string) => {
     setShowSuccess(message);
@@ -91,6 +97,9 @@ export function PaymentTable({ searchQuery = '', filterStatus = 'all', refreshKe
     return matchesSearch && matchesFilter;
   });
 
+  const totalPages = Math.max(1, Math.ceil(students.length / PAGE_SIZE));
+  const pagedStudents = students.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   if (loading) {
     return <p className="p-4">Loading payments...</p>;
   }
@@ -110,7 +119,7 @@ export function PaymentTable({ searchQuery = '', filterStatus = 'all', refreshKe
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {students.map((student) => {
+            {pagedStudents.map((student) => {
               const status = paymentStatusOf(student);
               return (
                 <tr key={student.id} className="hover:bg-muted/50 transition-colors">
@@ -162,6 +171,8 @@ export function PaymentTable({ searchQuery = '', filterStatus = 'all', refreshKe
           <p className="text-muted-foreground">No payments found</p>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {editingStudent && (
         <PaymentModal

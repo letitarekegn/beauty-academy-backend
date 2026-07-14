@@ -20,7 +20,7 @@ export function EmployeeModal({ employee, onClose, onSuccess }: EmployeeModalPro
     fullName: employee?.full_name ?? '',
     role: employee?.role ?? '',
     department: employee?.department ?? '',
-    salary: employee?.salary?.toString() ?? '',
+    salary: employee?.salary ? employee.salary.toString() : '',
     joinDate: employee?.join_date ?? '',
   });
 

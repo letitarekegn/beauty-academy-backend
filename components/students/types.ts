@@ -1,7 +1,7 @@
 export type Student = {
   id: string
   full_name: string
-  email: string
+  email?: string
   phone: string
   gender?: string
   age?: number

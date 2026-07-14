@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { COURSES, type Student } from '@/components/students/types';
+import { Pagination, PAGE_SIZE } from '@/components/pagination';
 
 function courseLabel(value: string) {
   return COURSES.find((c) => c.value === value)?.label ?? value;
@@ -9,9 +11,19 @@ function courseLabel(value: string) {
 
 interface GraduationTableProps {
   graduates: Student[];
+  searchQuery?: string;
 }
 
-export function GraduationTable({ graduates }: GraduationTableProps) {
+export function GraduationTable({ graduates, searchQuery = '' }: GraduationTableProps) {
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(graduates.length / PAGE_SIZE));
+  const pagedGraduates = graduates.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -26,10 +38,10 @@ export function GraduationTable({ graduates }: GraduationTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {graduates.map((grad) => (
+            {pagedGraduates.map((grad) => (
               <tr key={grad.id} className="hover:bg-muted/50 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-foreground">{grad.full_name}</td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{grad.email}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">{grad.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">{grad.phone}</td>
                 <td className="px-6 py-4 text-sm text-muted-foreground">
                   {grad.courses?.length ? grad.courses.map(courseLabel).join(', ') : '-'}
@@ -48,6 +60,8 @@ export function GraduationTable({ graduates }: GraduationTableProps) {
           <p className="text-muted-foreground">No graduation records found</p>
         </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

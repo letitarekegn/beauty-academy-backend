@@ -15,10 +15,8 @@ export function RegistrationForm() {
     phone: '',
     email: '',
     gender: '',
-    age: '',
     address: '',
     course: 'makeup',
-    schedule: 'morning',
     experience: 'none',
     source: '',
     notes: '',
@@ -57,15 +55,13 @@ export function RegistrationForm() {
       {
         full_name: formData.fullName,
         phone: formData.phone,
-        email: formData.email,
+        email: formData.email || null,
         gender: formData.gender,
-        age: formData.age ? Number(formData.age) : null,
         address: formData.address,
 
         // course system (single or combo stored as array)
         courses: [formData.course],
 
-        schedule: formData.schedule,
         experience: formData.experience,
 
         source: formData.source,
@@ -92,10 +88,8 @@ export function RegistrationForm() {
       phone: '',
       email: '',
       gender: '',
-      age: '',
       address: '',
       course: 'makeup',
-      schedule: 'morning',
       experience: 'none',
       source: '',
       notes: '',
@@ -149,9 +143,8 @@ export function RegistrationForm() {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            placeholder="Email"
+            placeholder="Email (optional)"
             className="w-full mb-4 p-3 border rounded"
-            required
           />
 
           {/* Phone */}
@@ -160,17 +153,6 @@ export function RegistrationForm() {
             value={formData.phone}
             onChange={handleInputChange}
             placeholder="Phone"
-            className="w-full mb-4 p-3 border rounded"
-            required
-          />
-
-          {/* Age */}
-          <input
-            name="age"
-            type="number"
-            value={formData.age}
-            onChange={handleInputChange}
-            placeholder="Age"
             className="w-full mb-4 p-3 border rounded"
             required
           />
@@ -201,18 +183,6 @@ export function RegistrationForm() {
             <option value="hair-nails">Hair & Nails</option>
             <option value="makeup-nails">Makeup & Nails</option>
             <option value="full">Full Package</option>
-          </select>
-
-          {/* Schedule */}
-          <select
-            name="schedule"
-            value={formData.schedule}
-            onChange={handleInputChange}
-            className="w-full mb-4 p-3 border rounded"
-          >
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="weekend">Weekend</option>
           </select>
 
           {/* Experience */}

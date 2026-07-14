@@ -22,10 +22,8 @@ export function StudentModal({ student, onClose, onSuccess }: StudentModalProps)
     email: student?.email ?? '',
     phone: student?.phone ?? '',
     gender: student?.gender ?? '',
-    age: student?.age?.toString() ?? '',
     address: student?.address ?? '',
     course: student?.courses?.[0] ?? 'makeup',
-    schedule: student?.schedule ?? 'morning',
     experience: student?.experience ?? 'none',
     graduated: student?.graduation_status === 'graduated',
   });
@@ -47,13 +45,11 @@ export function StudentModal({ student, onClose, onSuccess }: StudentModalProps)
 
     const payload: Record<string, unknown> = {
       full_name: formData.fullName,
-      email: formData.email,
+      email: formData.email || null,
       phone: formData.phone,
       gender: formData.gender,
-      age: formData.age ? Number(formData.age) : null,
       address: formData.address,
       courses: [formData.course],
-      schedule: formData.schedule,
       experience: formData.experience,
       graduation_status: formData.graduated ? 'graduated' : 'not_graduated',
       status: formData.graduated ? 'graduated' : 'active',
@@ -132,13 +128,12 @@ export function StudentModal({ student, onClose, onSuccess }: StudentModalProps)
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Email Address (optional)</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              required
               placeholder="Enter email"
               className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
@@ -158,35 +153,19 @@ export function StudentModal({ student, onClose, onSuccess }: StudentModalProps)
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Age */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Age</label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleInputChange}
-                placeholder="Age"
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Gender */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="">Select gender</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Select gender</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+            </select>
           </div>
 
           {/* Course */}
@@ -204,37 +183,20 @@ export function StudentModal({ student, onClose, onSuccess }: StudentModalProps)
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Schedule */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Schedule</label>
-              <select
-                name="schedule"
-                value={formData.schedule}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="morning">Morning</option>
-                <option value="afternoon">Afternoon</option>
-                <option value="weekend">Weekend</option>
-              </select>
-            </div>
-
-            {/* Experience */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Experience</label>
-              <select
-                name="experience"
-                value={formData.experience}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="none">None</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
+          {/* Experience */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Experience</label>
+            <select
+              name="experience"
+              value={formData.experience}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="none">None</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
           </div>
 
           {/* Address */}

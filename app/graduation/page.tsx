@@ -100,7 +100,7 @@ export default function GraduationPage() {
         {loading ? (
           <p className="p-4 text-muted-foreground">Loading graduates...</p>
         ) : (
-          <GraduationTable graduates={filteredGraduates} />
+          <GraduationTable graduates={filteredGraduates} searchQuery={searchQuery} />
         )}
       </div>
     </main>
